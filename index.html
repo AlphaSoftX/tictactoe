@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+
+    <title>TicTacToe</title>
+
+    <style>
+      .main {
+        display: none;
+      }
+
+      .playspace {
+        display: flex;
+
+        justify-content: center;
+      }
+
+      .play td {
+        border: 5px solid black;
+
+        width: 100px;
+
+        height: 100px;
+
+        font-size: 60px;
+
+        text-align: center;
+      }
+
+      .play tr:first-child td {
+        border-top: 0;
+      }
+
+      .play tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .play tr td:first-child {
+        border-left: 0;
+      }
+
+      .play tr td:last-child {
+        border-right: 0;
+      }
+
+      input[type="radio"] {
+        transition: 0.3s;
+      }
+
+      .indent {
+        margin-left: 30px;
+      }
+
+      .gameInfo {
+        display: flex;
+
+        justify-content: space-between;
+
+        width: 100%;
+      }
+
+      .form-check-input:disabled {
+        opacity: 1;
+      }
+
+      .lineBox {
+        position: relative;
+      }
+
+      #line {
+        display: inline-block;
+
+        background: black;
+
+        height: 5px;
+
+        position: absolute;
+
+        transform-origin: left center;
+
+        width: 0px;
+
+        transform: rotate(0deg);
+
+        top: 0px;
+
+        left: 0px;
+
+        transition: width 0.3s ease-in-out 0s;
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <span class="navbar-brand">TicTacToe(By Arun)</span>
+      </div>
+    </nav>
+
+    <button id="colbtn" class="d-none" data-bs-toggle="collapse" data-bs-target="#col">Toggle element</button>
+
+    <div class="mt-3 container">
+      <h1>Welcome to TicTacToe</h1>
+
+      <div class="options">
+        <label>Select game type</label><br />
+
+        <div><input type="radio" checked onclick="collapse(true)" name="gametype" id="comp" class="form-check-input" /> <label for="comp">Play with computer.</label></div>
+
+        <div class="indent collapse show" id="col">
+          <input onclick="chcompType(this.id)" type="radio" checked name="comptype" id="normal" class="form-check-input" />
+
+          <label for="normal">Play with a Normal computer.</label><br />
+
+          <input type="radio" onclick="chcompType(this.id)" name="comptype" id="unbeatable" class="form-check-input" />
+
+          <label for="unbeatable">Play with an Unbeatable computer.</label>
+        </div>
+
+        <input type="radio" onclick="collapse(false)" name="gametype" id="pvp" class="form-check-input" />
+
+        <label for="pvp">Play with a friend.</label>
+
+        <br />
+
+        <br />
+
+        <div id="pwc">
+          <label>Select your player</label><br />
+
+          <input onclick="chPlayerComp('X')" type="radio" checked name="cplayer" id="cx" class="form-check-input" />
+
+          <label for="cx">Play as X.</label><br />
+
+          <input onclick="chPlayerComp('O')" type="radio" name="cplayer" id="co" class="form-check-input" />
+
+          <label for="co">Play as O.</label>
+        </div>
+
+        <div id="pwp" style="display: none;">
+          <label>Select Player 1</label><br />
+
+          <input type="radio" onclick="checkRight(this.id);chPlayerPlayer('X');" checked name="player1" id="p1x" class="form-check-input" />
+
+          <label for="p1x">Play as X.</label><br />
+
+          <input type="radio" onclick="checkRight(this.id);chPlayerPlayer('O');" name="player1" id="p1o" class="form-check-input" />
+
+          <label for="p1o">Play as O.</label><br />
+
+          <br />
+
+          <label>Select Player 2</label><br />
+
+          <input onclick="checkRight(this.id);chPlayerPlayer('O');" type="radio" name="player2" id="p2x" class="form-check-input" />
+
+          <label for="p2x">Play as X.</label><br />
+
+          <input onclick="checkRight(this.id);chPlayerPlayer('X');" type="radio" checked name="player2" id="p2o" class="form-check-input" />
+
+          <label for="p2o">Play as O.</label>
+        </div>
+
+        <br />
+
+        <label>Select turn rule</label><br />
+
+        <input onclick="chTurnRule('X')" type="radio" checked name="typeRule" id="xf" class="form-check-input" />
+
+        <label for="xf">Always X first.</label><br />
+
+        <input onclick="chTurnRule('O')" type="radio" name="typeRule" id="of" class="form-check-input" />
+
+        <label for="of">Always O first.</label><br />
+
+        <input onclick="chTurnRule('al')" type="radio" name="typeRule" id="al" class="form-check-input" />
+
+        <label for="al">Alternatively.</label><br />
+
+        <br />
+
+        <button onclick="startGame()" class="btn btn-primary">Start Game</button>
+      </div>
+
+      <br />
+
+      <div class="main">
+        <div class="playspace">
+          <span class="lineBox">
+            <span id="line"></span>
+
+            <table class="play">
+              <tr>
+                <td id="0"></td>
+
+                <td id="1"></td>
+
+                <td id="2"></td>
+              </tr>
+
+              <tr>
+                <td id="3"></td>
+
+                <td id="4"></td>
+
+                <td id="5"></td>
+              </tr>
+
+              <tr>
+                <td id="6"></td>
+
+                <td id="7"></td>
+
+                <td id="8"></td>
+              </tr>
+            </table>
+          </span>
+        </div>
+
+        <br />
+
+        <h3>Game info</h3>
+
+        <div class="gameInfo">
+          <span>
+            <label>Score</label><br />
+
+            <span id="wix"></span>(X): <span id="xscore">0</span><br />
+
+            <span id="wio"></span>(O): <span id="oscore">0</span><br />
+
+            <br />
+
+            <button disabled onclick="reset(this)" id="resetbtn" class="btn btn-primary">Next Game</button>
+          </span>
+
+          <span>
+            <label>Turn for</label><br />
+
+            <input disabled type="radio" name="turnFor" id="tx" class="form-check-input" />
+
+            <label for="tx">X's turn.</label><br />
+
+            <input disabled type="radio" name="turnFor" id="to" class="form-check-input" />
+
+            <label for="to">O's turn.</label><br />
+
+            <br />
+
+            <button data-bs-toggle="modal" data-bs-target="#modal" class="btn btn-primary">New Game</button>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel">Confirm</h5>
+
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            Are you sure to reset your current game.
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">No</button>
+
+            <button type="button" onclick="window.location.reload()" class="btn btn-primary">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button id="modal2btn" class="d-none" data-bs-toggle="modal" data-bs-target="#modal2">
+      Launch static backdrop modal
+    </button>
+
+    <!-- Modal -->
+
+    <div class="modal fade" id="modal2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Message</h5>
+
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body" id="modalbody"></div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+      let playWith = "Computer";
+
+      let compType = "normal";
+
+      let huPlayer = "X";
+
+      let aiPlayer = "O";
+
+      let player1 = "X";
+
+      let player2 = "O";
+
+      let turnRule = "X";
+
+      let turn = "X";
+
+      let count = 0;
+
+      let gameover = false;
+
+      let turnV = null;
+
+      let xscore = 0;
+
+      let oscore = 0;
+
+      let checkWinner;
+
+      let checkTie;
+
+      let reset;
+
+      let func;
+
+      let runTurn;
+
+      let minimax;
+
+      let winning;
+
+      let avail;
+
+      let aiTurn;
+
+      let game = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+      let winner = [
+        [0, 1, 2, 200, 0, 47.5, 50],
+
+        [3, 4, 5, 200, 0, 147.5, 50],
+
+        [6, 7, 8, 200, 0, 252.5, 50],
+
+        [0, 3, 6, 200, 90, 50, 47.5],
+
+        [1, 4, 7, 200, 90, 50, 147.5],
+
+        [2, 5, 8, 200, 90, 50, 252.5],
+
+        [0, 4, 8, 290, 45, 47.5, 47.5],
+
+        [2, 4, 6, 290, -45, 252.5, 47.5],
+      ];
+
+      function collapse(a) {
+        if (a === true) {
+          if (!$("#col").hasClass("show")) {
+            $("#colbtn").click();
+          }
+
+          playWith = "Computer";
+        } else {
+          if ($("#col").hasClass("show")) {
+            $("#colbtn").click();
+          }
+
+          playWith = "Player";
+        }
+
+        if (playWith === "Computer") {
+          $("#pwp").css("display", "none");
+
+          $("#pwc").css("display", "block");
+        } else {
+          $("#pwp").css("display", "block");
+
+          $("#pwc").css("display", "none");
+        }
+      }
+
+      function checkRight(id) {
+        let obj = {
+          p1x: ["p2x", "p2o"],
+
+          p1o: ["p2o", "p2x"],
+
+          p2x: ["p1x", "p1o"],
+
+          p2o: ["p1o", "p1x"],
+        };
+
+        document.getElementById(obj[id][0]).checked = false;
+
+        document.getElementById(obj[id][1]).checked = true;
+      }
+
+      function chcompType(id) {
+        compType = id;
+      }
+
+      function chPlayerComp(id) {
+        huPlayer = id;
+
+        aiPlayer = huPlayer === "X" ? "O" : "X";
+      }
+
+      function chPlayerPlayer(id) {
+        player1 = id;
+
+        player2 = player1 === "X" ? "O" : "X";
+      }
+
+      function changeTurn() {
+        turn = turn === "X" ? "O" : "X";
+      }
+
+      function chTurnRule(id) {
+        turnRule = id;
+
+        turn = turnRule === "al" ? "X" : turnRule;
+
+        turnV = turnRule === "al" ? "X" : null;
+      }
+
+      function startGame() {
+        $(".options").css("display", "none");
+
+        $(".main").css("display", "block");
+
+        if (playWith === "Computer") {
+          if (aiPlayer === "X") {
+            if (compType === "normal") {
+              $("#wix").html("N-Computer");
+            } else {
+              $("#wix").html("U-Computer");
+            }
+
+            $("#wio").html("You");
+          } else {
+            $("#wix").html("You");
+
+            if (compType === "normal") {
+              $("#wio").html("N-Computer");
+            } else {
+              $("#wio").html("U-Computer");
+            }
+          }
+
+          if (compType === "normal") {
+            checkWinner = () => {
+              let tds = Array.from(document.querySelectorAll("td"));
+
+              for (let i = 0; i < winner.length; i++) {
+                let a = winner[i];
+
+                if (tds[a[0]].innerText === tds[a[1]].innerText && tds[a[0]].innerText === tds[a[2]].innerText && tds[a[0]].innerText !== "") {
+                  return [true, tds[a[0]].innerText, a];
+
+                  break;
+                }
+              }
+
+              return [false];
+            };
+
+            checkTie = () => {
+              if (count > 8 && !checkWinner()[0]) {
+                return true;
+              } else {
+                return false;
+              }
+            };
+
+            func = () => {
+              let w = checkWinner();
+
+              let t = checkTie();
+
+              if (w[0]) {
+                if (w[1] === "X") {
+                  if (huPlayer === "X") {
+                    $("#modalbody").html("You win!");
+                  } else {
+                    $("#modalbody").html("You lose.");
+                  }
+
+                  xscore++;
+                } else {
+                  if (huPlayer === "O") {
+                    $("#modalbody").html("You win!");
+                  } else {
+                    $("#modalbody").html("You lose.");
+                  }
+
+                  oscore++;
+                }
+
+                $("#modal2btn").click();
+
+                $("#line").css({
+                  transform: `rotate(${w[2][4]}deg)`,
+
+                  top: `${w[2][5]}px`,
+
+                  left: `${w[2][6]}px`,
+
+                  width: `${w[2][3]}px`,
+                });
+
+                $("#xscore").html(xscore);
+
+                $("#oscore").html(oscore);
+
+                gameover = true;
+
+                document.getElementById("resetbtn").disabled = false;
+              } else if (t) {
+                $("#modalbody").html("The game is tie.");
+
+                $("#modal2btn").click();
+
+                gameover = true;
+
+                document.getElementById("resetbtn").disabled = false;
+
+                $("#xscore").html(xscore);
+
+                $("#oscore").html(oscore);
+              }
+            };
+
+            runTurn = (ele, player) => {
+              if (ele.innerHTML === "" && !gameover) {
+                ele.innerHTML = player;
+
+                game[Number(ele.id)] = player;
+
+                document.getElementById(`t${turn.toLowerCase()}`).checked = false;
+
+                changeTurn();
+
+                document.getElementById(`t${turn.toLowerCase()}`).checked = true;
+
+                count++;
+
+                func();
+
+                aiTurn();
+              }
+            };
+
+            aiTurn = () => {
+              if (aiPlayer === turn && !(checkWinner()[0] === true) && !(checkTie() === true)) {
+                gameover = true;
+
+                let array = game.filter((s) => {
+                  return typeof s === "number";
+                });
+
+                let spot = array[Math.floor(Math.random() * array.length)];
+
+                let spotEle = Array.from(document.querySelectorAll("td"))[spot];
+
+                setTimeout(() => {
+                  gameover = false;
+
+                  runTurn(spotEle, aiPlayer);
+                }, 1000);
+              }
+            };
+
+            document.querySelectorAll("td").forEach((ele) => {
+              ele.onclick = () => {
+                runTurn(ele, huPlayer);
+              };
+            });
+
+            aiTurn();
+
+            reset = (xyz) => {
+              $("#line").css({
+                width: `0px`,
+              });
+
+              xyz.disabled = true;
+
+              game = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+              $("td").html("");
+
+              document.querySelectorAll("td").forEach((ele) => {
+                ele.onclick = () => {
+                  runTurn(ele, huPlayer);
+                };
+              });
+
+              if (turnRule === "al") {
+                turnV = turnV === "X" ? "O" : "X";
+
+                turn = turnV;
+              } else {
+                turn = turnRule;
+              }
+
+              changeTurn();
+
+              document.getElementById(`t${turn.toLowerCase()}`).checked = false;
+
+              changeTurn();
+
+              document.getElementById(`t${turn.toLowerCase()}`).checked = true;
+
+              gameover = false;
+
+              $("#xscore").html(xscore);
+
+              $("#oscore").html(oscore);
+
+              count = 0;
+
+              aiTurn();
+            };
+          } else {
+            winning = (board, player) => {
+              if (
+                (board[0] == player && board[1] == player && board[2] == player) ||
+                (board[3] == player && board[4] == player && board[5] == player) ||
+                (board[6] == player && board[7] == player && board[8] == player) ||
+                (board[0] == player && board[3] == player && board[6] == player) ||
+                (board[1] == player && board[4] == player && board[7] == player) ||
+                (board[2] == player && board[5] == player && board[8] == player) ||
+                (board[0] == player && board[4] == player && board[8] == player) ||
+                (board[2] == player && board[4] == player && board[6] == player)
+              ) {
+                return true;
+              } else {
+                return false;
+              }
+            };
+
+            avail = (reboard) => {
+              return reboard.filter((s) => s != "X" && s != "O");
+            };
+
+            minimax = (reboard, player) => {
+              let array = avail(reboard);
+
+              if (winning(reboard, huPlayer)) {
+                return {
+                  score: -10,
+                };
+              } else if (winning(reboard, aiPlayer)) {
+                return {
+                  score: 10,
+                };
+              } else if (array.length === 0) {
+                return {
+                  score: 0,
+                };
+              }
+
+              var moves = [];
+
+              for (var i = 0; i < array.length; i++) {
+                var move = {};
+
+                move.index = reboard[array[i]];
+
+                reboard[array[i]] = player;
+
+                if (player == aiPlayer) {
+                  var g = minimax(reboard, huPlayer);
+
+                  move.score = g.score;
+                } else {
+                  var g = minimax(reboard, aiPlayer);
+
+                  move.score = g.score;
+                }
+
+                reboard[array[i]] = move.index;
+
+                moves.push(move);
+              }
+
+              var bestMove;
+
+              if (player === aiPlayer) {
+                var bestScore = -10000;
+
+                for (var i = 0; i < moves.length; i++) {
+                  if (moves[i].score > bestScore) {
+                    bestScore = moves[i].score;
+
+                    bestMove = i;
+                  }
+                }
+              } else {
+                var bestScore = 10000;
+
+                for (var i = 0; i < moves.length; i++) {
+                  if (moves[i].score < bestScore) {
+                    bestScore = moves[i].score;
+
+                    bestMove = i;
+                  }
+                }
+              }
+
+              return moves[bestMove];
+            };
+
+            checkWinner = () => {
+              let tds = Array.from(document.querySelectorAll("td"));
+
+              for (let i = 0; i < winner.length; i++) {
+                let a = winner[i];
+
+                if (tds[a[0]].innerText === tds[a[1]].innerText && tds[a[0]].innerText === tds[a[2]].innerText && tds[a[0]].innerText !== "") {
+                  return [true, tds[a[0]].innerText, a];
+
+                  break;
+                }
+              }
+
+              return [false];
+            };
+
+            checkTie = () => {
+              if (count > 8 && !checkWinner()[0]) {
+                return true;
+              } else {
+                return false;
+              }
+            };
+
+            func = () => {
+              let w = checkWinner();
+
+              let t = checkTie();
+
+              if (w[0]) {
+                if (w[1] === "X") {
+                  if (huPlayer === "X") {
+                    $("#modalbody").html("You win!");
+                  } else {
+                    $("#modalbody").html("You lose.");
+                  }
+
+                  xscore++;
+                } else {
+                  if (huPlayer === "O") {
+                    $("#modalbody").html("You win!");
+                  } else {
+                    $("#modalbody").html("You lose.");
+                  }
+
+                  oscore++;
+                }
+
+                $("#modal2btn").click();
+
+                $("#line").css({
+                  transform: `rotate(${w[2][4]}deg)`,
+
+                  top: `${w[2][5]}px`,
+
+                  left: `${w[2][6]}px`,
+
+                  width: `${w[2][3]}px`,
+                });
+
+                $("#xscore").html(xscore);
+
+                $("#oscore").html(oscore);
+
+                gameover = true;
+
+                document.getElementById("resetbtn").disabled = false;
+              } else if (t) {
+                $("#modalbody").html("The game is tie.");
+
+                $("#win").html("Tie.");
+
+                $("#modal2btn").click();
+
+                gameover = true;
+
+                document.getElementById("resetbtn").disabled = false;
+
+                $("#xscore").html(xscore);
+
+                $("#oscore").html(oscore);
+              }
+            };
+
+            runTurn = (ele, player) => {
+              if (ele.innerHTML === "" && !gameover) {
+                ele.innerHTML = player;
+
+                game[Number(ele.id)] = player;
+
+                document.getElementById(`t${turn.toLowerCase()}`).checked = false;
+
+                changeTurn();
+
+                document.getElementById(`t${turn.toLowerCase()}`).checked = true;
+
+                count++;
+
+                func();
+
+                aiTurn();
+              }
+            };
+
+            aiTurn = () => {
+              if (aiPlayer === turn && !(checkWinner()[0] === true) && !(checkTie() === true)) {
+                gameover = true;
+
+                let array = game.filter((s) => {
+                  return typeof s === "number";
+                });
+
+                let spot;
+
+                if (count === 0) {
+                  spot = array[Math.floor(Math.random() * array.length)];
+                } else {
+                  spot = minimax(game, aiPlayer).index;
+                }
+
+                let spotEle = Array.from(document.querySelectorAll("td"))[spot];
+
+                setTimeout(() => {
+                  gameover = false;
+
+                  runTurn(spotEle, aiPlayer);
+                }, 1000);
+              }
+            };
+
+            document.querySelectorAll("td").forEach((ele) => {
+              ele.onclick = () => {
+                runTurn(ele, huPlayer);
+              };
+            });
+
+            aiTurn();
+
+            reset = (xyz) => {
+              $("#line").css({
+                width: `0px`,
+              });
+
+              xyz.disabled = true;
+
+              game = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+              $("td").html("");
+
+              document.querySelectorAll("td").forEach((ele) => {
+                ele.onclick = () => {
+                  runTurn(ele, huPlayer);
+                };
+              });
+
+              if (turnRule === "al") {
+                turnV = turnV === "X" ? "O" : "X";
+
+                turn = turnV;
+              } else {
+                turn = turnRule;
+              }
+
+              changeTurn();
+
+              document.getElementById(`t${turn.toLowerCase()}`).checked = false;
+
+              changeTurn();
+
+              document.getElementById(`t${turn.toLowerCase()}`).checked = true;
+
+              gameover = false;
+
+              $("#xscore").html(xscore);
+
+              $("#oscore").html(oscore);
+
+              count = 0;
+
+              aiTurn();
+            };
+          }
+        } else {
+          if (player1 === "X") {
+            $("#wix").html("Player1");
+
+            $("#wio").html("Player2");
+          } else {
+            $("#wix").html("Player2");
+
+            $("#wio").html("Player1");
+          }
+
+          checkWinner = () => {
+            let tds = Array.from(document.querySelectorAll("td"));
+
+            for (let i = 0; i < winner.length; i++) {
+              let a = winner[i];
+
+              if (tds[a[0]].innerText === tds[a[1]].innerText && tds[a[0]].innerText === tds[a[2]].innerText && tds[a[0]].innerText !== "") {
+                return [true, tds[a[0]].innerText, a];
+
+                break;
+              }
+            }
+
+            return [false];
+          };
+
+          checkTie = () => {
+            if (count > 8 && !checkWinner()[0]) {
+              return true;
+            } else {
+              return false;
+            }
+          };
+
+          func = () => {
+            let w = checkWinner();
+
+            let t = checkTie();
+
+            if (w[0]) {
+              if (w[1] === "X") {
+                xscore++;
+              } else {
+                oscore++;
+              }
+
+              $("#modalbody").html(w[1] + " win the game!");
+
+              $("#modal2btn").click();
+
+              $("#line").css({
+                transform: `rotate(${w[2][4]}deg)`,
+
+                top: `${w[2][5]}px`,
+
+                left: `${w[2][6]}px`,
+
+                width: `${w[2][3]}px`,
+              });
+
+              $("#xscore").html(xscore);
+
+              $("#oscore").html(oscore);
+
+              gameover = true;
+
+              document.getElementById("resetbtn").disabled = false;
+            } else if (t) {
+              $("#modalbody").html("The game is tie.");
+
+              $("#modal2btn").click();
+
+              gameover = true;
+
+              document.getElementById("resetbtn").disabled = false;
+
+              $("#xscore").html(xscore);
+
+              $("#oscore").html(oscore);
+            }
+          };
+
+          document.querySelectorAll("td").forEach((ele) => {
+            ele.onclick = () => {
+              if (ele.innerHTML === "" && !gameover) {
+                ele.innerHTML = turn;
+
+                game[Number(ele.id)] = turn;
+
+                document.getElementById(`t${turn.toLowerCase()}`).checked = false;
+
+                changeTurn();
+
+                document.getElementById(`t${turn.toLowerCase()}`).checked = true;
+
+                count++;
+
+                func();
+              }
+            };
+          });
+
+          reset = (xyz) => {
+            $("#line").css({
+              width: `0px`,
+            });
+
+            xyz.disabled = true;
+
+            game = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+            $("td").html("");
+
+            document.querySelectorAll("td").forEach((ele) => {
+              ele.onclick = () => {
+                if (ele.innerHTML === "" && !gameover) {
+                  ele.innerHTML = turn;
+
+                  game[Number(ele.id)] = turn;
+
+                  document.getElementById(`t${turn.toLowerCase()}`).checked = false;
+
+                  changeTurn();
+
+                  document.getElementById(`t${turn.toLowerCase()}`).checked = true;
+
+                  count++;
+
+                  func();
+                }
+              };
+            });
+
+            if (turnRule === "al") {
+              turnV = turnV === "X" ? "O" : "X";
+
+              turn = turnV;
+            } else {
+              turn = turnRule;
+            }
+
+            changeTurn();
+
+            document.getElementById(`t${turn.toLowerCase()}`).checked = false;
+
+            changeTurn();
+
+            document.getElementById(`t${turn.toLowerCase()}`).checked = true;
+
+            gameover = false;
+
+            $("#xscore").html(xscore);
+
+            $("#oscore").html(oscore);
+
+            count = 0;
+          };
+        }
+
+        $(`#t${turn.toLowerCase()}`).attr("checked", "");
+      }
+    </script>
+  </body>
+</html>
